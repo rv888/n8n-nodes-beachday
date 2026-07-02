@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-beachday",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Beach Day API for n8n — real-time beach conditions, tides, water quality, and Beach Day Scores™ across 11,500+ beaches in 22 countries",
   "keywords": [
     "n8n-community-node-package",
