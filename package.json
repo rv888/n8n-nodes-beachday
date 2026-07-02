@@ -1,0 +1,55 @@
+{
+  "name": "n8n-nodes-beachday",
+  "version": "1.0.0",
+  "description": "Beach Day API for n8n — real-time beach conditions, tides, water quality, and Beach Day Scores™ across 11,500+ beaches in 22 countries",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "beach",
+    "weather",
+    "tides",
+    "surf",
+    "water-quality",
+    "ocean"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Beach Day API",
+    "email": "ryanv@versusmedia.com",
+    "url": "https://beachdayapi.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rv888/n8n-nodes-beachday"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && cp nodes/BeachDay/beachday.svg dist/nodes/BeachDay/beachday.svg",
+    "lint": "n8n-node-dev lint",
+    "format": "prettier --write .",
+    "release": "npx @n8n/node-cli release",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist/"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/BeachDay/BeachDay.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/BeachDayApi.credentials.js"
+    ]
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "^0.23.0",
+    "n8n-workflow": "^1.48.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^20.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
