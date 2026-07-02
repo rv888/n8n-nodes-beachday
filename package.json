@@ -39,12 +39,14 @@
       "dist/credentials/BeachDayApi.credentials.js"
     ]
   },
-  "dependencies": {
-    "n8n-workflow": "^1.48.0"
+  "peerDependencies": {
+    "n8n-workflow": "*"
   },
   "devDependencies": {
+    "n8n-workflow": "latest",
     "typescript": "^5.5.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "@types/express": "^4.17.21"
   },
   "engines": {
     "node": ">=18.0.0"
