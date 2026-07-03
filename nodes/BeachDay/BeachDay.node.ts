@@ -1,8 +1,9 @@
 import {
-  IExecuteFunctions,
-  INodeExecutionData,
-  INodeType,
-  INodeTypeDescription,
+	IExecuteFunctions,
+	IHttpRequestOptions,
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
 } from 'n8n-workflow';
 
 const BASE_URL = 'https://beachdayapi.com/v1';
@@ -91,61 +92,60 @@ export class BeachDay implements INodeType {
     ],
   };
 
-  async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-    const items = this.getInputData();
-    const returnData: INodeExecutionData[] = [];
-    const credentials = await this.getCredentials('beachDayApi');
-    const apiKey = credentials.apiKey as string;
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		const items = this.getInputData();
+		const returnData: INodeExecutionData[] = [];
 
-    for (let i = 0; i < items.length; i++) {
-      const operation = this.getNodeParameter('operation', i) as string;
-      try {
-        let url: string;
-        switch (operation) {
-          case 'getBeach':
-            url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/`; break;
-          case 'getConditions':
-            url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/conditions/?limit=${this.getNodeParameter('limit', i)}`; break;
-          case 'getRules':
-            url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/rules/`; break;
-          case 'getAmenities':
-            url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/amenities/`; break;
-          case 'getTides':
-            url = `${BASE_URL}/tides/${this.getNodeParameter('beachId', i)}/`; break;
-          case 'listCountries':
-            url = `${BASE_URL}/countries/`; break;
-          case 'searchBeaches': {
-            const p = new URLSearchParams();
-            const s = this.getNodeParameter('search', i, '') as string;
-            const c = this.getNodeParameter('country', i, '') as string;
-            const st = this.getNodeParameter('state', i, '') as string;
-            if (s) p.append('search', s);
-            if (c) p.append('country', c);
-            if (st) p.append('state', st);
-            p.append('limit', String(this.getNodeParameter('limit', i)));
-            url = `${BASE_URL}/beaches/?${p.toString()}`;
-            break;
-          }
-          case 'getScoredBeaches':
-            url = `${BASE_URL}/beaches/scored/?limit=${this.getNodeParameter('limit', i)}`; break;
-          default:
-            throw new Error(`Unknown operation: ${operation}`);
-        }
+		for (let i = 0; i < items.length; i++) {
+			const operation = this.getNodeParameter('operation', i) as string;
+			try {
+				let url: string;
+				switch (operation) {
+					case 'getBeach':
+						url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/`; break;
+					case 'getConditions':
+						url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/conditions/?limit=${this.getNodeParameter('limit', i)}`; break;
+					case 'getRules':
+						url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/rules/`; break;
+					case 'getAmenities':
+						url = `${BASE_URL}/beaches/${this.getNodeParameter('beachId', i)}/amenities/`; break;
+					case 'getTides':
+						url = `${BASE_URL}/tides/${this.getNodeParameter('beachId', i)}/`; break;
+					case 'listCountries':
+						url = `${BASE_URL}/countries/`; break;
+					case 'searchBeaches': {
+						const p = new URLSearchParams();
+						const s = this.getNodeParameter('search', i, '') as string;
+						const c = this.getNodeParameter('country', i, '') as string;
+						const st = this.getNodeParameter('state', i, '') as string;
+						if (s) p.append('search', s);
+						if (c) p.append('country', c);
+						if (st) p.append('state', st);
+						p.append('limit', String(this.getNodeParameter('limit', i)));
+						url = `${BASE_URL}/beaches/?${p.toString()}`;
+						break;
+					}
+					case 'getScoredBeaches':
+						url = `${BASE_URL}/beaches/scored/?limit=${this.getNodeParameter('limit', i)}`; break;
+					default:
+						throw new Error(`Unknown operation: ${operation}`);
+				}
 
-        const response = await this.helpers.request({
-          method: 'GET', url,
-          headers: { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' },
-          json: true,
-        });
-        returnData.push({ json: response });
-      } catch (error: any) {
-        if (this.continueOnFail()) {
-          returnData.push({ json: { error: error.message || String(error) } });
-          continue;
-        }
-        throw error;
-      }
-    }
-    return [returnData];
-  }
+				const options: IHttpRequestOptions = {
+					method: 'GET',
+					url,
+				};
+
+				const response = await this.helpers.httpRequest(options);
+				returnData.push({ json: response });
+			} catch (error: any) {
+				if (this.continueOnFail()) {
+					returnData.push({ json: { error: error.message || String(error) } });
+					continue;
+				}
+				throw error;
+			}
+		}
+		return [returnData];
+	}
 }
