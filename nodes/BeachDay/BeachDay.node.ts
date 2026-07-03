@@ -1,6 +1,5 @@
 import {
 	IExecuteFunctions,
-	IHttpRequestOptions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
@@ -131,12 +130,14 @@ export class BeachDay implements INodeType {
 						throw new Error(`Unknown operation: ${operation}`);
 				}
 
-				const options: IHttpRequestOptions = {
-					method: 'GET',
-					url,
-				};
-
-				const response = await this.helpers.httpRequest(options);
+				const response = await this.helpers.httpRequestWithAuthentication.call(
+					this,
+					'beachDayApi',
+					{
+						method: 'GET',
+						url,
+					},
+				);
 				returnData.push({ json: response });
 			} catch (error: any) {
 				if (this.continueOnFail()) {
