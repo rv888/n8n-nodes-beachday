@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/n8n-nodes-beachday)](https://www.npmjs.com/package/n8n-nodes-beachday)
 [![n8n Community Node](https://img.shields.io/badge/n8n-community%20node-blue)](https://docs.n8n.io/integrations/community-nodes/)
 
-**Beach Day API** integration for n8n — real-time beach conditions, tides, water quality, and Beach Day Scores™ for **24,000+ beaches** across **103 countries**.
+**Beach Day API** integration for n8n — real-time beach conditions, tides, water quality, and Beach Day Scores™ for **27,000+ beaches** across **103 countries**.
 
 ## Operations
 
