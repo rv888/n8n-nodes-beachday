@@ -10,6 +10,8 @@ export class BeachDayApi implements ICredentialType {
 
 	displayName = 'Beach Day API';
 
+	icon = 'file:beachday.svg' as 'file:beachday.svg';
+
 	documentationUrl = 'https://beachdayapi.com/docs';
 
 	properties: INodeProperties[] = [

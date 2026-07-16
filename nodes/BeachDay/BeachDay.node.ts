@@ -3,6 +3,10 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	NodeConnectionTypes,
+	NodeOperationError,
+	NodeApiError,
+	JsonObject,
 } from 'n8n-workflow';
 
 const BASE_URL = 'https://beachdayapi.com/v1';
@@ -16,10 +20,11 @@ export class BeachDay implements INodeType {
     version: 1,
     subtitle: '={{$parameter["operation"]}}',
     description:
-      'Real-time beach conditions, tides, water quality, and Beach Day Scores™ across 11,500+ beaches in 22 countries',
+      'Real-time beach conditions, tides, water quality, and Beach Day Scores™ across 36,000+ beaches in 103 countries',
     defaults: { name: 'Beach Day' },
-    inputs: ['main'],
-    outputs: ['main'],
+    usableAsTool: true,
+    inputs: [NodeConnectionTypes.Main],
+    outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'beachDayApi', required: true }],
     properties: [
       {
@@ -28,14 +33,14 @@ export class BeachDay implements INodeType {
         type: 'options',
         noDataExpression: true,
         options: [
-          { name: 'Get Beach Detail', value: 'getBeach', description: 'Full beach detail with water quality, weather, rules, and amenities' },
-          { name: 'Get Beach Conditions', value: 'getConditions', description: 'Historical daily condition snapshots with tides' },
-          { name: 'Get Beach Rules', value: 'getRules', description: 'Allowed/prohibited/restricted activities for a beach' },
-          { name: 'Get Beach Amenities', value: 'getAmenities', description: 'Lifeguards, restrooms, showers, parking, and more' },
-          { name: 'Get Tide Predictions', value: 'getTides', description: 'Up to 7 days of high/low tide predictions' },
-          { name: 'Get Top Scored Beaches', value: 'getScoredBeaches', description: 'Beaches ranked by Beach Day Score™ (0-100)' },
-          { name: 'Search Beaches', value: 'searchBeaches', description: 'Find beaches by name, country, or state' },
-          { name: 'List Countries', value: 'listCountries', description: 'All available countries with beach counts' },
+          { name: 'Get Beach Amenities', value: 'getAmenities', action: 'Get beach amenities', description: 'Lifeguards, restrooms, showers, parking, and more' },
+          { name: 'Get Beach Conditions', value: 'getConditions', action: 'Get beach conditions', description: 'Historical daily condition snapshots with tides' },
+          { name: 'Get Beach Detail', value: 'getBeach', action: 'Get beach detail', description: 'Full beach detail with water quality, weather, rules, and amenities' },
+          { name: 'Get Beach Rules', value: 'getRules', action: 'Get beach rules', description: 'Allowed/prohibited/restricted activities for a beach' },
+          { name: 'Get Tide Predictions', value: 'getTides', action: 'Get tide predictions', description: 'Up to 7 days of high/low tide predictions' },
+          { name: 'Get Top Scored Beaches', value: 'getScoredBeaches', action: 'Get top scored beaches', description: 'Beaches ranked by Beach Day Score™ (0-100)' },
+          { name: 'List Countries', value: 'listCountries', action: 'List countries', description: 'All available countries with beach counts' },
+          { name: 'Search Beaches', value: 'searchBeaches', action: 'Search beaches', description: 'Find beaches by name, country, or state' },
         ],
         default: 'getBeach',
         required: true,
@@ -83,10 +88,10 @@ export class BeachDay implements INodeType {
         displayName: 'Limit',
         name: 'limit',
         type: 'number',
-        default: 10,
+        default: 50,
         typeOptions: { minValue: 1, maxValue: 500 },
         displayOptions: { show: { operation: ['searchBeaches', 'getConditions', 'getScoredBeaches'] } },
-        description: 'Max results to return (1-500)',
+        description: 'Max number of results to return',
       },
     ],
   };
@@ -127,7 +132,7 @@ export class BeachDay implements INodeType {
 					case 'getScoredBeaches':
 						url = `${BASE_URL}/beaches/scored/?limit=${this.getNodeParameter('limit', i)}`; break;
 					default:
-						throw new Error(`Unknown operation: ${operation}`);
+						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
 				}
 
 				const response = await this.helpers.httpRequestWithAuthentication.call(
@@ -138,13 +143,13 @@ export class BeachDay implements INodeType {
 						url,
 					},
 				);
-				returnData.push({ json: response });
+				returnData.push({ json: response, pairedItem: { item: i } });
 			} catch (error: any) {
 				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message || String(error) } });
+					returnData.push({ json: { error: error.message || String(error) }, pairedItem: { item: i } });
 					continue;
 				}
-				throw error;
+				throw new NodeApiError(this.getNode(), error as JsonObject);
 			}
 		}
 		return [returnData];
